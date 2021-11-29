@@ -12,8 +12,8 @@ using namespace std;
 //zmienne ogolne
 typedef float point3[3];
 typedef float point9[9];
-int testedObject = 1; //rysowany obiekt 
-int task = 1;  //wybrane zadanie
+int testedObject = 2; //rysowany obiekt 
+int task = 2;  //wybrane zadanie
 
 //zmienne jajka
 int n = 100;//ilosc punktow
@@ -161,62 +161,10 @@ void egg() {
 	}
 }
 
-void zadanie1() {//obiekt jest obracany a zoom jest wykonany jako poweikszanie/pomnijeszanie obiektu
-	switch (status) {
-	case 1:
-		theta[1] += 7 * pix2angle;
-		break;
-	case 2:
-		theta[1] -= 7 * pix2angle;
-		break;
-	case 3:
-		theta[0] += 7 * pix2angle;
-		break;
-	case 4:
-		theta[0] -= 7 * pix2angle;
-		break;
-	}
-
-	glRotatef(theta[0], 0.0, 1.0, 0.0);
-	glRotatef(theta[1], 1.0, 0.0, 0.0);
-
-	//if (statusRight == 1) {//zoom
-	//	if (delta_y < 0) {
-	//		scale += 0.1;
-	//	}
-	//	else {
-	//		scale -= 0.1;
-	//	}
-	//	if (scale <= 0.1) {
-	//		scale = 0.1;
-	//	}
-	//}
-
-	switch (testedObject) {//wybranie obiektu
-	case 1:
-		glColor3f(1.0f, 1.0f, 1.0f);
-		glutSolidTeapot(scale);
-		break;
-	case 2:
-		egg();
-		break;
-	}
-}
-
-void zadanie2() {//przesuwany jest punkt widzenia, a zoom jest wykonany jako przesuwanie go w strone punktu obserwowanego
-	switch (status) {
-	case 1:
-		elevation += 0.07 * pix2angle;
-		break;
-	case 2:
-		elevation -= 0.07 * pix2angle;
-		break;
-	case 3:
-		azymuth += 0.07 * pix2angle;
-		break;
-	case 4:
-		azymuth -= 0.07 * pix2angle;
-		break;
+void zadanie() {//przesuwany jest punkt widzenia, a zoom jest wykonany jako przesuwanie go w strone punktu obserwowanego
+	if (status == 1) {
+		elevation += 0.01 * delta_y * pix2angle;
+		azymuth += 0.01 * delta_x * pix2angle;
 	}
 
 	viewer[0] = rViewer * cos(azymuth) * cos(elevation);//obliczenie pozycji punktu widzenia
@@ -265,14 +213,8 @@ void RenderScene(void)
 	gluLookAt(viewer[0], viewer[1], viewer[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);//ustawienie pozycji punktu widzenia i pozycji punktu obserwowanego
 
 	Axes();
-	switch (task) {//wywolanie odpowiedniego zadania
-	case 1:
-		zadanie1();
-		break;
-	case 2:
-		zadanie2();
-		break;
-	}
+	zadanie();
+
 	glutSwapBuffers();//zmiana bufferow i wyswietlanie
 }
 
@@ -295,6 +237,16 @@ void Mouse(int btn, int state, int x, int y)
 	else {
 		statusLeft = 0;		//ustawienie flagi przycisku  
 	}
+
+	if (btn == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) {//sprawdzenie czy przycisniety zostal lewy klawisz
+		x_pos_old = x;
+		y_pos_old = y;
+		status = 1;    //ustawienie flagi przycisku        
+	}
+	else {
+		status = 0;		//ustawienie flagi przycisku  
+	}
+
 	RenderScene();
 }
 
@@ -359,7 +311,7 @@ void MyInit(void)
 	// Ustawienie parametrów źródła
 
 	GLfloat redlight_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
-	GLfloat redlight_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat redlight_specular[] = { 1.0, 0.7, 0.7, 1.0 };
 	GLfloat redlight_ambient[] = { 0.1, 0.1, 0.1, 1.0 };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, redlight_ambient);
@@ -371,7 +323,7 @@ void MyInit(void)
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, att_quadratic);
 
 	GLfloat bluelight_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
-	GLfloat bluelight_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat bluelight_specular[] = { 0.7, 0.7, 1.0, 1.0 };
 	GLfloat bluelight_ambient[] = { 0.1, 0.1, 0.1, 1.0 };
 
 	glLightfv(GL_LIGHT1, GL_AMBIENT, bluelight_ambient);
@@ -395,41 +347,12 @@ void MyInit(void)
 
 void keys(unsigned char key, int x, int y)
 {
-	if (key == 'j') {//wyswietlanie jajka
-		testedObject = 2;
-	}
-	if (key == 'c') {//wyswietlenie czajnika
+	status = 0;
+	if (key == 'c') {
 		testedObject = 1;
 	}
-	if (key == '1') {//uruchomienie 1 zadania 
-		if (task == 1) {
-			return;
-		}
-		task = 1;
-	}
-	if (key == '2') {//uruchomienie 2 zadania 
-		if (task == 2) {
-			return;
-		}
-		task = 2;
-	}
-
-	switch (key) {
-	case 'w'://gora
-		status = 1;
-		break;
-	case 's'://dol
-		status = 2;
-		break;
-	case 'a'://lewo
-		status = 3;
-		break;
-	case 'd'://prawo
-		status = 4;
-		break;
-	default://brak
-		status = 0;
-		break;
+	if (key == 'j') {
+		testedObject = 2;
 	}
 
 	RenderScene();
@@ -471,7 +394,7 @@ void main(void)
 		}
 	}
 
-	cout << "Obracanie WASD\nzadanie 1: kliknij 1\nzadanie 2: kliknij 2\ntestuj czajnik: kliknij c\ntestuj jajko: kliknij j" << endl;
+	cout << "Obsluga programu:\nc - czajnik\nj - jajko\nlewy przycisk myszy - aktywuje ruch czerwonego swiatla\nprawy przycisk myszy - altywuje ruch niebieskiego swiatla\nsrodkowy przycisk myszy - ruch obiektu" << endl;
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(1000, 1000);
 	glutCreateWindow("Rzutowanie perspektywiczne");
