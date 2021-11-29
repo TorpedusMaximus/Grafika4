@@ -304,7 +304,6 @@ void MyInit(void)
 
 void keys(unsigned char key, int x, int y)
 {
-	statusMiddle = 0;
 	if (key == 'c') {
 		testedObject = 1;
 	}
@@ -345,7 +344,7 @@ void main(void)
 	cout << "Obsluga programu:\nc - czajnik\nj - jajko\nlewy przycisk myszy - aktywuje ruch czerwonego swiatla\nprawy przycisk myszy - altywuje ruch niebieskiego swiatla\nsrodkowy przycisk myszy - ruch obiektu" << endl;
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(1000, 1000);
-	glutCreateWindow("Rzutowanie perspektywiczne");
+	glutCreateWindow("Oświetlenie 3D");
 	glutDisplayFunc(RenderScene);
 	glutReshapeFunc(ChangeSize);
 	MyInit();
