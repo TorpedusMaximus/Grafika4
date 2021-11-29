@@ -13,31 +13,28 @@ using namespace std;
 typedef float point3[3];
 typedef float point9[9];
 int testedObject = 2; //rysowany obiekt 
-int task = 2;  //wybrane zadanie
 
 //zmienne jajka
 int n = 100;//ilosc punktow
 float scale = 3.0;//wielkosc obiektu
 point3** points;//siatka punktow
-point3** color; //kolory
-point3** vectors;
+point3** vectors;//wektory punktow powierzchni jajka
 
 //zmienne zadanie 1 i 2
-static GLfloat theta[] = { 0.0, 0.0, 0.0 };
 static GLfloat pix2angle;     // przelicznik pikseli na stopnie 
 static GLint statusLeft = 0;       // stan klawisza lewego
 static GLint statusRight = 0;// stan klawisza prawego
+static GLint statusMiddle = 0;//stan srdkowego klawisza
 static int x_pos_old = 0;       // pozycje kursora myszy
 static int delta_x = 0;
 static int y_pos_old = 0;
 static int delta_y = 0;
-static int status = 0;
+
 
 //zmienne zadanie 2
 float rViewer = 10;//R wokol punktu obserwowanego 
-float rObject = 0;//R punktu obserwowanego (uzyte w celu mozliwosci przesuwania tegoz punktu)
+float rLight = 20;//R punktu obserwowanego (uzyte w celu mozliwosci przesuwania tegoz punktu)
 static GLfloat viewer[] = { 0.0, 0.0, 10.0 };//pozycja punktu widzenia
-static GLfloat object[] = { 0.0, 0.0, 0.0 };//pozycja punktu obserwowanego
 static GLfloat azymuth = 0;    //katy obserwacji punktu obserwowanego
 static GLfloat elevation = 0;
 
@@ -114,10 +111,10 @@ void egg() {
 			vector[4] = (-450 * u4 + 900 * u3 - 810 * u2 + 360 * u - 45) * sin(M_PI * v);
 			vector[5] = -1 * M_PI * (90 * u5 - 225 * u4 + 270 * u3 - 180 * u2 + 45) * cos(M_PI * v);
 
-			vector[6] = vector[2] * vector[5] - vector[4] * vector[3];
+			vector[6] = vector[2] * vector[5] - vector[4] * vector[3];//wektory 
 			vector[7] = vector[4] * vector[1] - vector[0] * vector[5];
 			vector[8] = vector[0] * vector[3] - vector[2] * vector[1];
-			float vectorSize = sqrt(pow(vector[6], 2) + pow(vector[7], 2) + pow(vector[8], 2));
+			float vectorSize = sqrt(pow(vector[6], 2) + pow(vector[7], 2) + pow(vector[8], 2));//normalizacja wektora
 			if (vectorSize == 0) {
 				vectorSize = 1;
 			}
@@ -134,26 +131,20 @@ void egg() {
 	for (int i = 0; i < n; i++) {//rysowanie i kolory
 		for (int ii = 0; ii < n; ii++) {
 			glBegin(GL_TRIANGLES);//rysowanie pierwszego trojkata
-			glColor3f(color[i][ii][0], color[i][ii][1], color[i][ii][2]);
 			glNormal3fv(vectors[i][ii]);
 			glVertex3f(points[i][ii][0], points[i][ii][1], points[i][ii][2]);
-			glColor3f(color[i + 1][ii][0], color[i + 1][ii][1], color[i + 1][ii][2]);
 			glNormal3fv(vectors[i + 1][ii]);
 			glVertex3f(points[i + 1][ii][0], points[i + 1][ii][1], points[i + 1][ii][2]);
-			glColor3f(color[i + 1][ii + 1][0], color[i + 1][ii + 1][1], color[i + 1][ii + 1][2]);
 			glNormal3fv(vectors[i + 1][ii + 1]);
 			glVertex3f(points[i + 1][ii + 1][0], points[i + 1][ii + 1][1], points[i + 1][ii + 1][2]);
 			glEnd();
 
 
 			glBegin(GL_TRIANGLES);//rysowanie drugiego trojkata
-			glColor3f(color[i][ii][0], color[i][ii][1], color[i][ii][2]);
 			glNormal3fv(vectors[i][ii]);
 			glVertex3f(points[i][ii][0], points[i][ii][1], points[i][ii][2]);
-			glColor3f(color[i][ii + 1][0], color[i][ii + 1][1], color[i][ii + 1][2]);
 			glNormal3fv(vectors[i][ii + 1]);
 			glVertex3f(points[i][ii + 1][0], points[i][ii + 1][1], points[i][ii + 1][2]);
-			glColor3f(color[i + 1][ii + 1][0], color[i + 1][ii + 1][1], color[i + 1][ii + 1][2]);
 			glNormal3fv(vectors[i + 1][ii + 1]);
 			glVertex3f(points[i + 1][ii + 1][0], points[i + 1][ii + 1][1], points[i + 1][ii + 1][2]);
 			glEnd();
@@ -161,8 +152,8 @@ void egg() {
 	}
 }
 
-void zadanie() {//przesuwany jest punkt widzenia, a zoom jest wykonany jako przesuwanie go w strone punktu obserwowanego
-	if (status == 1) {
+void zadanie() { 
+	if (statusMiddle == 1) {//obracanie obiektu
 		elevation += 0.01 * delta_y * pix2angle;
 		azymuth += 0.01 * delta_x * pix2angle;
 	}
@@ -171,30 +162,30 @@ void zadanie() {//przesuwany jest punkt widzenia, a zoom jest wykonany jako prze
 	viewer[1] = rViewer * sin(elevation);
 	viewer[2] = rViewer * sin(azymuth) * cos(elevation);
 
-	if (statusLeft == 1) {//obrot 
+	if (statusLeft == 1) {//przesuwanie czerwonego swiatla
 		lightRedAngles[0] += delta_x * pix2angle / 100;
 		lightRedAngles[1] += delta_y * pix2angle / 100;
 	}
 
-	if (statusRight == 1) {
+	if (statusRight == 1) {//przesuwanie niebieskieg swiatla
 		lightBlueAngles[0] += delta_x * pix2angle / 100;
 		lightBlueAngles[1] += delta_y * pix2angle / 100;
 	}
 
-	redLightPosition[0] = 10 * cos(lightRedAngles[0]) * cos(lightRedAngles[1]);//obliczenie pozycji punktu widzenia
-	redLightPosition[1] = 10 * sin(lightRedAngles[1]);
-	redLightPosition[2] = 10 * sin(lightRedAngles[0]) * cos(lightRedAngles[1]);
+	redLightPosition[0] = rLight * cos(lightRedAngles[0]) * cos(lightRedAngles[1]);//obliczenie pozycji czerwonego swiatla
+	redLightPosition[1] = rLight * sin(lightRedAngles[1]);
+	redLightPosition[2] = rLight * sin(lightRedAngles[0]) * cos(lightRedAngles[1]);
 
-	blueLightPosition[0] = 10 * cos(lightBlueAngles[0]) * cos(lightBlueAngles[1]);//obliczenie pozycji punktu widzenia
-	blueLightPosition[1] = 10 * sin(lightBlueAngles[1]);
-	blueLightPosition[2] = 10 * sin(lightBlueAngles[0]) * cos(lightBlueAngles[1]);
+	blueLightPosition[0] = rLight * cos(lightBlueAngles[0]) * cos(lightBlueAngles[1]);//obliczenie pozycji niebieskiego swiatla
+	blueLightPosition[1] = rLight * sin(lightBlueAngles[1]);
+	blueLightPosition[2] = rLight * sin(lightBlueAngles[0]) * cos(lightBlueAngles[1]);
 
 
 
-	glLightfv(GL_LIGHT0, GL_POSITION, redLightPosition);
+	glLightfv(GL_LIGHT0, GL_POSITION, redLightPosition);//aktualizacja pozycji zrodla swiatla
 	glLightfv(GL_LIGHT1, GL_POSITION, blueLightPosition);
 
-	switch (testedObject) {//wybranie obiektu
+	switch (testedObject) {//wybranie obiektu do wyswietlania
 	case 1:
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glutSolidTeapot(scale);
@@ -215,7 +206,7 @@ void RenderScene(void)
 	Axes();
 	zadanie();
 
-	glutSwapBuffers();//zmiana bufferow i wyswietlanie
+	glutSwapBuffers();//zmiana buforow i wyswietlanie
 }
 
 void Mouse(int btn, int state, int x, int y)
@@ -241,10 +232,10 @@ void Mouse(int btn, int state, int x, int y)
 	if (btn == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) {//sprawdzenie czy przycisniety zostal lewy klawisz
 		x_pos_old = x;
 		y_pos_old = y;
-		status = 1;    //ustawienie flagi przycisku        
+		statusMiddle = 1;    //ustawienie flagi przycisku        
 	}
 	else {
-		status = 0;		//ustawienie flagi przycisku  
+		statusMiddle = 0;		//ustawienie flagi przycisku  
 	}
 
 	RenderScene();
@@ -311,7 +302,7 @@ void MyInit(void)
 	// Ustawienie parametrów źródła
 
 	GLfloat redlight_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
-	GLfloat redlight_specular[] = { 1.0, 0.7, 0.7, 1.0 };
+	GLfloat redlight_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat redlight_ambient[] = { 0.1, 0.1, 0.1, 1.0 };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, redlight_ambient);
@@ -323,7 +314,7 @@ void MyInit(void)
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, att_quadratic);
 
 	GLfloat bluelight_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
-	GLfloat bluelight_specular[] = { 0.7, 0.7, 1.0, 1.0 };
+	GLfloat bluelight_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat bluelight_ambient[] = { 0.1, 0.1, 0.1, 1.0 };
 
 	glLightfv(GL_LIGHT1, GL_AMBIENT, bluelight_ambient);
@@ -347,7 +338,7 @@ void MyInit(void)
 
 void keys(unsigned char key, int x, int y)
 {
-	status = 0;
+	statusMiddle = 0;
 	if (key == 'c') {
 		testedObject = 1;
 	}
@@ -379,19 +370,10 @@ void main(void)
 {
 	srand(time(NULL));
 	points = new  point3 * [n + 1];//tablica punktow
-	color = new point3 * [n + 1];//tablica kolorow
 	vectors = new point3 * [n + 1];//tablice
 	for (int i = 0; i <= n; i++) {
-		color[i] = new point3[n + 1];
 		points[i] = new point3[n + 1];
 		vectors[i] = new point3[n + 1];
-	}
-	for (int i = 0; i <= n; i++) {//losowanie kolorow
-		for (int ii = 0; ii <= n; ii++) {
-			color[i][ii][0] = (rand() % 101) * 0.01;
-			color[i][ii][1] = (rand() % 101) * 0.01;
-			color[i][ii][2] = (rand() % 101) * 0.01;
-		}
 	}
 
 	cout << "Obsluga programu:\nc - czajnik\nj - jajko\nlewy przycisk myszy - aktywuje ruch czerwonego swiatla\nprawy przycisk myszy - altywuje ruch niebieskiego swiatla\nsrodkowy przycisk myszy - ruch obiektu" << endl;
