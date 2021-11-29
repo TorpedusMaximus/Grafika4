@@ -34,8 +34,8 @@ static GLfloat elevation = 0;
 
 //punkty swietlne
 static GLint statusLeft = 0;       // stan klawisza lewego
-static GLint statusRight = 0;// stan klawisza prawego
-float rLight = 20;//odleglosc zrodla swiatla 
+static GLint statusRight = 0;	   // stan klawisza prawego
+float rLight = 10;				   //odleglosc zrodla swiatla 
 static GLfloat lightRedAngles[] = { 0.0, 0.0 };//dane swiatla czerwonego
 GLfloat redLightPosition[] = { 10.0, 10.0, 10.0, 1.0 };
 static GLfloat lightBlueAngles[] = { 0.0, 0.0 };//dane swiatla niebieskiego
