@@ -72,7 +72,7 @@ void Axes(void)
 void egg() {
 	float u = 0, v = 0;
 	float udiff = 1.0 / n, vdiff = 1.0 / n; //n - liczba punktow na powierzchni jajka
-	glTranslated(0, (-(160 * pow(0.5, 4) - 320 * pow(0.5, 3) + 160 * pow(0.5, 2)) / 2) * (scale + 7) / 10, 0);//obniżenie środka figury do centrum ukladu wspolrzednych
+	glTranslated(0, (-(160 * pow(0.5, 4) - 320 * pow(0.5, 3) + 160 * pow(0.5, 2)) / 2) * (scale + 7) / 10, 0);//obnizenie środka figury do centrum ukladu wspolrzednych
 
 	for (int i = 0; i <= n; i++) {//punkty powierzchni
 		v = 0;//obliczenie poteg w celu ulatwienia kodu
@@ -252,67 +252,39 @@ void MyInit(void)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 
-	GLfloat mat_ambient[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_ambient[] = { 1.0, 1.0, 1.0, 1.0 };//okreslenie parametrow materialu
 	GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat mat_shininess = { 20.0 };
 
-
-
-	GLfloat light_position[] = { 0.0, 0.0, 10.0, 1.0 };
-	// położenie źródła
-
-
-
-	// składowe intensywności świecenia źródła światła otoczenia
-	// Ia = [Iar,Iag,Iab]
-
-
-	// składowe intensywności świecenia źródła światła powodującego
-	// odbicie dyfuzyjne Id = [Idr,Idg,Idb]
-
-
-	// składowe intensywności świecenia źródła światła powodującego
-	// odbicie kierunkowe Is = [Isr,Isg,Isb]
-
-	GLfloat att_constant = { 1.0 };
-	// składowa stała ds dla modelu zmian oświetlenia w funkcji
-	// odległości od źródła
-
-	GLfloat att_linear = { 0.05 };
-	// składowa liniowa dl dla modelu zmian oświetlenia w funkcji
-	// odległości od źródła
-
-	GLfloat att_quadratic = { 0.001 };
-
-
-
-
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);//ustawienie parametrow materialu
 	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
 
 
-	// Ustawienie parametrów źródła
+	GLfloat light_position[] = { 0.0, 0.0, 10.0, 1.0 };//pocztkoawa pozycja punktow swietlnych
 
-	GLfloat redlight_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
+	GLfloat att_constant = { 1.0 };//okreslenia parametrow swiatla
+	GLfloat att_linear = { 0.05 };
+	GLfloat att_quadratic = { 0.001 };
+	GLfloat light_ambient[] = { 0.1, 0.1, 0.1, 1.0 };
+
+
+	GLfloat redlight_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };//parametry swiatla czerwonego
 	GLfloat redlight_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat redlight_ambient[] = { 0.1, 0.1, 0.1, 1.0 };
+	GLfloat bluelight_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };//parametry swiatla niebieskiego
+	GLfloat bluelight_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, redlight_ambient);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);//ustawienie GL_LIGHT0 na czerwone zrodlo swiatla
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, redlight_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, redlight_specular);
 	glLightfv(GL_LIGHT0, GL_POSITION, redLightPosition);
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, att_constant);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, att_linear);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, att_quadratic);
-
-	GLfloat bluelight_diffuse[] = { 0.0, 0.0, 1.0, 1.0 };
-	GLfloat bluelight_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat bluelight_ambient[] = { 0.1, 0.1, 0.1, 1.0 };
-
-	glLightfv(GL_LIGHT1, GL_AMBIENT, bluelight_ambient);
+	
+	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);//ustawienie GL_LIGHT0 na niebieskie zrodlo swiatla
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, bluelight_diffuse);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, bluelight_specular);
 	glLightfv(GL_LIGHT1, GL_POSITION, blueLightPosition);
@@ -321,14 +293,13 @@ void MyInit(void)
 	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, att_quadratic);
 
 
+	//uruchomienie oswietlenia
+	glShadeModel(GL_SMOOTH); // wlaczenie lagodnego cieniowania
+	glEnable(GL_LIGHTING);   // wlaczenie systemu oświetlenia sceny
+	glEnable(GL_LIGHT0);     // wlaczenie zrodla czerwonego
+	glEnable(GL_LIGHT1);	// wlaczenie zrodla niebieskiego
+	glEnable(GL_DEPTH_TEST); // wlaczenie mechanizmu z-bufora
 
-	glShadeModel(GL_SMOOTH); // właczenie łagodnego cieniowania
-	glEnable(GL_LIGHTING);   // właczenie systemu oświetlenia sceny
-	glEnable(GL_LIGHT0);     // włączenie źródła o numerze 0
-	glEnable(GL_LIGHT1);
-	glEnable(GL_DEPTH_TEST); // włączenie mechanizmu z-bufora
-
-/*************************************************************************************/
 }
 
 void keys(unsigned char key, int x, int y)
