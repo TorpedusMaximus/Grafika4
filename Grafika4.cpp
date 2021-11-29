@@ -13,36 +13,32 @@ using namespace std;
 typedef float point3[3];
 typedef float point9[9];
 int testedObject = 2; //rysowany obiekt 
-
-//zmienne jajka
-int n = 100;//ilosc punktow
-float scale = 3.0;//wielkosc obiektu
-point3** points;//siatka punktow
-point3** vectors;//wektory punktow powierzchni jajka
-
-//zmienne zadanie 1 i 2
-static GLfloat pix2angle;     // przelicznik pikseli na stopnie 
-static GLint statusLeft = 0;       // stan klawisza lewego
-static GLint statusRight = 0;// stan klawisza prawego
-static GLint statusMiddle = 0;//stan srdkowego klawisza
 static int x_pos_old = 0;       // pozycje kursora myszy
 static int delta_x = 0;
 static int y_pos_old = 0;
 static int delta_y = 0;
+static GLfloat pix2angle;     // przelicznik pikseli na stopnie 
 
+//zmienne obiektu
+int n = 100;//ilosc punktow jajka
+float scale = 3.0;//wielkosc obiektu
+point3** points;//siatka punktow
+point3** vectors;//wektory punktow powierzchni jajka
 
-//zmienne zadanie 2
+//zmienne obrotu obiektu
+static GLint statusMiddle = 0;//stan srdkowego klawisza
 float rViewer = 10;//R wokol punktu obserwowanego 
-float rLight = 20;//R punktu obserwowanego (uzyte w celu mozliwosci przesuwania tegoz punktu)
 static GLfloat viewer[] = { 0.0, 0.0, 10.0 };//pozycja punktu widzenia
 static GLfloat azymuth = 0;    //katy obserwacji punktu obserwowanego
 static GLfloat elevation = 0;
 
 //punkty swietlne
-static GLfloat lightRedAngles[] = { 0.0, 0.0 };
+static GLint statusLeft = 0;       // stan klawisza lewego
+static GLint statusRight = 0;// stan klawisza prawego
+float rLight = 20;//odleglosc zrodla swiatla 
+static GLfloat lightRedAngles[] = { 0.0, 0.0 };//dane swiatla czerwonego
 GLfloat redLightPosition[] = { 10.0, 10.0, 10.0, 1.0 };
-
-static GLfloat lightBlueAngles[] = { 0.0, 0.0 };
+static GLfloat lightBlueAngles[] = { 0.0, 0.0 };//dane swiatla niebieskiego
 GLfloat blueLightPosition[] = { -10.0, 10.0, 10.0, 1.0 };
 
 void Axes(void)
@@ -128,7 +124,7 @@ void egg() {
 		u = u + udiff;
 	}
 
-	for (int i = 0; i < n; i++) {//rysowanie i kolory
+	for (int i = 0; i < n; i++) {//rysowanie 
 		for (int ii = 0; ii < n; ii++) {
 			glBegin(GL_TRIANGLES);//rysowanie pierwszego trojkata
 			glNormal3fv(vectors[i][ii]);
@@ -138,7 +134,6 @@ void egg() {
 			glNormal3fv(vectors[i + 1][ii + 1]);
 			glVertex3f(points[i + 1][ii + 1][0], points[i + 1][ii + 1][1], points[i + 1][ii + 1][2]);
 			glEnd();
-
 
 			glBegin(GL_TRIANGLES);//rysowanie drugiego trojkata
 			glNormal3fv(vectors[i][ii]);
@@ -152,7 +147,7 @@ void egg() {
 	}
 }
 
-void zadanie() { 
+void zadanie() {
 	if (statusMiddle == 1) {//obracanie obiektu
 		elevation += 0.01 * delta_y * pix2angle;
 		azymuth += 0.01 * delta_x * pix2angle;
